@@ -8,8 +8,8 @@ class Sample
 {
 
 public:
-	std::vector <char> sample_vector;
-	Sample() {};
+	std::vector <float> sample_vector;
+	Sample();
 
 	/// <summary>
 	/// gera um vetor de chars aleatório com tamanho entre 32 e 512

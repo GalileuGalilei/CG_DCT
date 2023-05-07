@@ -11,10 +11,15 @@ private:
 	Sample* sample;
 	Vector2 position;
 	Vector2 size;
+	float range;
+	const char* label;
+
+	float CalculateRange();
 
 public:
-	Graph(Vector2 position, Vector2 size, Sample* sample);
-
+	Graph(Vector2 position, Vector2 size, Sample* sample, const char* label);
 	void OnRender(OnRenderEvent* args) override;
+
+	friend class GraphDisplay;
 };
 

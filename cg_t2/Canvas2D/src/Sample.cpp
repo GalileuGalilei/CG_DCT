@@ -1,5 +1,10 @@
 #include "Sample.h"
 
+Sample::Sample()
+{
+
+}
+
 bool CheckRange(int value, int min, int max)
 {
 	return (value >= min && value <= max);
@@ -19,7 +24,6 @@ void Sample::GenerateSampleVector(int size)
 		sample_vector.push_back(rand() % 255 - 128);
 	}
 }
-
 
 void Sample::GenerateSenoidalSampleVector(int size)
 {
@@ -74,8 +78,11 @@ void Sample::SaveSample(const char* filename)
 		return;
 	}
 	unsigned int size = sample_vector.size();
-	fwrite(&size, sizeof(unsigned int), 1, file);
-	fwrite(sample_vector.data(), sizeof(char), size, file);
+	for (float f : sample_vector)
+	{
+		char c = (char)f;
+		fwrite(&c, sizeof(char), 1, file);
+	}
 	fclose(file);
 }
 
@@ -90,7 +97,19 @@ void Sample::LoadSample(const char* filename)
 	}
 	unsigned int size;
 	fread(&size, sizeof(unsigned int), 1, file);
+
+	if (CheckRange(size, 32, 512))
+	{
+		return;
+	}
+
 	sample_vector.resize(size);
-	fread(sample_vector.data(), sizeof(char), size, file);
+	while (!feof(file))
+	{
+		char c;
+		fread(&c, sizeof(char), 1, file);
+		sample_vector.push_back(c);
+	}
+
 	fclose(file);
 }

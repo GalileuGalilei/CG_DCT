@@ -50,7 +50,7 @@ public:
 
         //valor atual
         CV::color(0,0,0);
-        CV::text(cx, y - 15, std::to_string((int)value).c_str());
+        CV::text(cx + 2, y - 7, std::to_string((int)value).c_str());
         CV::color(0.8, 0.6, 0.2);
         CV::circleFill(cx, y + height / 2, r, 12);
     }

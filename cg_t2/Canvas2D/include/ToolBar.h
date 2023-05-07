@@ -6,16 +6,24 @@
 #include "Botao.h"
 #include "Sample.h"
 #include "Slider.h"
+#include "GraphDisplay.h"
 #include <functional>
 #include <list>
+#include <DCT.h>
 
 class ToolBar : IRenderable
 {
 private :
 	std::list<Button*> buttonList;
 	std::list<Slider*> sliderList;
-	Sample* sample;
-	Slider* tamSlider = NULL;
+	Slider* sampleSlider = NULL; //mudar depois??
+
+	Sample* originalSample = nullptr;
+	Sample* DCTSample = nullptr;
+	Sample* IDCTSample = nullptr;
+	Sample* diffSample = nullptr;
+
+	GraphDisplay* graphDisplay;
 
 	Vector2 position;
 	Vector2 size;
@@ -26,11 +34,13 @@ private :
 	const char* filename = "output.dct";
 
 public :
-	ToolBar(Sample* sample, Vector2 position, Vector2 size, int buttonOffset) : offset(buttonOffset)
+	ToolBar(GraphDisplay* graphDisplay, Vector2 position, Vector2 size, int buttonOffset) : offset(buttonOffset)
 	{
+		this->originalSample = new Sample();
+
 		this->position = position;
 		this->size = size;
-		this->sample = sample;
+		this->graphDisplay = graphDisplay;
 		
 		buttonSize = Vector2(size.x - offset, (size.x / 2) - offset);
 		SetButtonsAndSliders();
@@ -70,9 +80,9 @@ public :
 		int x = position.x + offset;
 		Slider* s = new Slider(x, y, width, min, max, label);
 
-		if (tamSlider == NULL)
+		if (sampleSlider == NULL)
 		{
-			tamSlider = s;
+			sampleSlider = s;
 		}
 
 		return s;
@@ -103,30 +113,57 @@ private:
 	{
 		AddButton([this]() 
 			{
-				sample->LoadSample(filename);
+				originalSample->LoadSample(filename);
 			}, Colors::orange, "Load");
 
 		AddButton([this]() 
 			{
-				sample->SaveSample(filename);
+				originalSample->SaveSample(filename);
 			}, Colors::orange, "Save");
-
 
 		AddButton([this]()
 			{
-				sample->GenerateMultiSenoidalSampleVector(tamSlider->GetValue());
+				originalSample->GenerateMultiSenoidalSampleVector(sampleSlider->GetValue());
+				CalculateSamples();
 			}, Colors::orange, "R.Senoid");
 
 		AddButton([this]()
 			{
-				sample->GenerateSenoidalSampleVector(tamSlider->GetValue());
+				originalSample->GenerateSenoidalSampleVector(sampleSlider->GetValue());
+				CalculateSamples();
 			}, Colors::orange, "Senoid");
 
 		AddButton([this]()
 			{
-				sample->GenerateSampleVector(tamSlider->GetValue());
+				originalSample->GenerateSampleVector(sampleSlider->GetValue());
+				CalculateSamples();
 			}, Colors::orange, "Random");
 
 		AddSlider("Tamanho", buttonSize.x, 32, 512);
+	}
+
+	void CalculateSamples()
+	{
+		if (originalSample->sample_vector.size() == 0)
+		{
+			return;
+		}
+
+		free(DCTSample);
+		DCTSample = DCT::ApplyDCT(originalSample);
+		free(IDCTSample);
+		IDCTSample = DCT::ApplyIDCT(DCTSample);
+		free(diffSample);
+		diffSample = DCT::CalculateError(originalSample, IDCTSample);
+		AddGraphs();
+	}
+
+	void AddGraphs()
+	{
+		graphDisplay->Clear();
+		graphDisplay->AddGraph(originalSample, "Original");
+		graphDisplay->AddGraph(DCTSample, "DCT");
+		graphDisplay->AddGraph(IDCTSample, "IDCT");
+		graphDisplay->AddGraph(diffSample, "Diff");
 	}
 };

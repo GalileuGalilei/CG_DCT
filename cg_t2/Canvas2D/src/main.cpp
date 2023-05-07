@@ -15,7 +15,7 @@
 #include "ToolBar.h"
 #include <time.h>
 #include "Slider.h"
-#include "DCT.h"
+#include "GraphDisplay.h"
 
 void keyboard(int key) {}
 
@@ -48,9 +48,8 @@ int main(void)
     EventManager::Instance()->AddListener<OnClickEvent>(IClickable::ClickAll);
     EventManager::Instance()->AddListener<OnMouseOverEvent>(IClickable::MouseOverAll);
 
-    Sample* sample = new Sample();
-    DCT* dct = new DCT(Vector2(100, 100), Vector2(screenWidth - 200, screenHeight - 200), sample, 20);
-    ToolBar toolBar(sample, Vector2(0, 0), Vector2(100, screenHeight), 10);
+    GraphDisplay* graphDisplay = new GraphDisplay(Vector2(100, 50), Vector2(screenWidth - 100, screenHeight - 100), 40);
+    ToolBar toolBar(graphDisplay, Vector2(0, 0), Vector2(100, screenHeight), 10);
 
     CV::init(&screenWidth, &screenHeight, "Canvas 2D");
     CV::run();

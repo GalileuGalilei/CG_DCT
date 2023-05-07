@@ -141,6 +141,7 @@
     <ClInclude Include="Canvas2D\include\Slider.h" />
     <ClInclude Include="Canvas2D\include\Graph.h" />
     <ClInclude Include="Canvas2D\include\DCT.h" />
+    <ClInclude Include="Canvas2D\include\GraphDisplay.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Canvas2D\src\EventManager.cpp" />
@@ -153,6 +154,7 @@
     <ClCompile Include="Canvas2D\src\Slider.cpp" />
     <ClCompile Include="Canvas2D\src\Graph.cpp" />
     <ClCompile Include="Canvas2D\src\DCT.cpp" />
+    <ClCompile Include="Canvas2D\src\GraphDisplay.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

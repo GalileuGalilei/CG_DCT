@@ -1,24 +1,18 @@
 #pragma once
-#include "Graph.h"
+#include "Sample.h"
 
 /// <summary>
-/// recebe uma sample e retorna uma sample com a DCT aplicada e plota os devidos graficos
+/// classe auxiliar para aplicar a transformada discreta de cosseno dentre outras operacoes
 /// </summary>
 class DCT
 {
 private:
-	Vector2 position;
-	Vector2 size;
-	Sample* sample;
-
-	Graph* original;
-	Graph* dct;
+	DCT() {};
 
 public:
-	DCT(Vector2 position, Vector2 size, Sample* sample, int offset);
-	~DCT();
 	static Sample* ApplyDCT(Sample* sample);
-
-
-
+	static Sample* ApplyIDCT(Sample* sample);
+	static Sample* ApplyQuantization(Sample* sample, int quantization);
+	static Sample* ApplyDequantization(Sample* sample, int quantization);
+	static Sample* CalculateError(Sample* sample1, Sample* sample2);
 };
