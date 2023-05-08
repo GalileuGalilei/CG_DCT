@@ -1,7 +1,6 @@
 #pragma once
 #include "gl_canvas2d.h"
 #include "GameEvents.h"
-#include "Tools.h"
 #include "Vector2.h"
 #include "Botao.h"
 #include "Sample.h"
@@ -21,12 +20,13 @@ private :
 	int quantization = 1;
 	int baseFunction = 0;
 
-	Sample* originalSample = nullptr;
-	Sample* DCTSample = nullptr;
-	Sample* IDCTSample = nullptr;
-	Sample* diffSample = nullptr;
-	Sample* quantizedSample = nullptr;
-	Sample* baseCossineSample = nullptr;
+	Sample* originalSample = new Sample();
+	Sample* DCTSample = new Sample();
+	Sample* IDCTSample = new Sample();
+	Sample* diffSample = new Sample();
+	Sample* quantizedSample = new Sample();
+	Sample* dequantizedSample = new Sample();
+	Sample* baseCossineSample = new Sample();
 
 	GraphDisplay* graphDisplay;
 
@@ -38,23 +38,16 @@ private :
 	const int offset;
 	const char* outFilename = "output.dct";
 	const char* inFilename = "input.dct";
-	
-	Graph* baseCossineGraph;
 
 public :
 	ToolBar(GraphDisplay* graphDisplay, Vector2 position, Vector2 size, int buttonOffset) : offset(buttonOffset)
 	{
-		this->originalSample = new Sample();
-		this->baseCossineSample = new Sample();
 		this->position = position;
 		this->size = size;
 		this->graphDisplay = graphDisplay;
 		
 		buttonSize = Vector2(size.x - offset, (size.x / 2) - offset);
 		SetButtonsAndSliders();
-
-		EventManager::Instance()->AddListener<OnToolEvent>(ITool::OnTool);
-		SetColorDisplay();
 
 		originalSample->GenerateMultiSenoidalSampleVector(sampleSize);
 		CalculateSamples();
@@ -123,7 +116,8 @@ private:
 
 		AddButton([this]() 
 			{
-				originalSample->SaveSample(outFilename);
+				originalSample->SaveSample(inFilename);
+				IDCTSample->SaveSample(outFilename);
 			}, Colors::orange, "Save");
 
 		AddButton([this]()
@@ -149,36 +143,26 @@ private:
 				sampleSize = value;
 				baseFunction = 0;
 				return value;
-			}, Vector2(32, 512), "Sample Size");
+			}, Vector2(32, 512), "Samples");
 
 		AddSlider([this](int value)
 			{
 				quantization = value;
 				return value;
-			}, Vector2(1, 32), "Quantization");
+			}, Vector2(1, 128), "Quantz.");
 
 		AddSlider([this](int value)
 			{
-				if (originalSample == nullptr)
-				{
-					return sampleSize;
-				}
-
 				if (value < sampleSize)
 				{
 					baseFunction = value;
-				//	char strValue[5];
-				//	snprintf(strValue, 5, "%i", value);
-				//	char aux[32];
-				//	std::strcpy(aux, baseFunctionPreLabel);
-				////std::strcpy(baseFunctionLabel, strcat(aux, strValue));
 					DCT::BaseCossineFunction(baseCossineSample, baseFunction);
-					baseCossineGraph->Update();
+					UpdateGraphs();
 					return value;
 				}
 				
 				return sampleSize;
-			}, Vector2(0, 512), "Base Function");
+			}, Vector2(0, 512), "Base Func");
 	}
 
 	void CalculateSamples()
@@ -188,36 +172,23 @@ private:
 			return;
 		}
 
-		if (originalSample->sample_vector.size() > 512)
-		{
-			int a = 2;
-		}
-
+		DCT::ApplyDCT(originalSample, DCTSample);
+		DCT::ApplyQuantization(DCTSample, quantizedSample, quantization);
+		DCT::ApplyDequantization(quantizedSample, dequantizedSample, quantization);
+		DCT::ApplyIDCT(dequantizedSample, IDCTSample);
+		DCT::CalculateError(originalSample, IDCTSample, diffSample);
 		DCT::BaseCossineFunction(baseCossineSample, baseFunction);
-		delete(DCTSample);
-		DCTSample = DCT::ApplyDCT(originalSample);
-		delete(quantizedSample);
-		quantizedSample = DCT::ApplyQuantization(DCTSample, quantization);
-
-		delete(IDCTSample);
-		Sample* desquantized = DCT::ApplyDequantization(quantizedSample, quantization);
-		IDCTSample = DCT::ApplyIDCT(desquantized);
-
-		delete(diffSample);
-		diffSample = DCT::CalculateError(originalSample, IDCTSample);
-		AddGraphs();
-
-		delete(desquantized);
+		UpdateGraphs();
 	}
 
-	void AddGraphs()
+	void UpdateGraphs()
 	{
 		graphDisplay->Clear();
 		graphDisplay->AddGraph(originalSample, "Original");
 		graphDisplay->AddGraph(DCTSample, "DCT");
 		graphDisplay->AddGraph(quantizedSample, "Quantized DCT");
-		graphDisplay->AddGraph(IDCTSample, "IDCT");
-		graphDisplay->AddGraph(diffSample, "Diff");
-		baseCossineGraph = graphDisplay->AddGraph(baseCossineSample, "Base Cossine Function");
+		graphDisplay->AddGraph(IDCTSample, "IDCT (Reconstructed)");
+		graphDisplay->AddGraph(diffSample, "Difference (ERROR)");
+		graphDisplay->AddGraph(baseCossineSample, "Base Cossine Function");
 	}
 };

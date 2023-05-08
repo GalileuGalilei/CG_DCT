@@ -138,7 +138,6 @@
     <ClInclude Include="Canvas2D\include\GameEvents.h" />
     <ClInclude Include="Canvas2D\include\gl_canvas2d.h" />
     <ClInclude Include="Canvas2D\include\ToolBar.h" />
-    <ClInclude Include="Canvas2D\include\Tools.h" />
     <ClInclude Include="Canvas2D\include\Vector2.h" />
     <ClInclude Include="Canvas2D\include\Sample.h" />
     <ClInclude Include="Canvas2D\include\Slider.h" />
@@ -152,7 +151,6 @@
     <ClCompile Include="Canvas2D\src\gl_canvas2d.cpp" />
     <ClCompile Include="Canvas2D\src\main.cpp" />
     <ClCompile Include="Canvas2D\src\ToolBar.cpp" />
-    <ClCompile Include="Canvas2D\src\Tools.cpp" />
     <ClCompile Include="Canvas2D\src\Sample.cpp" />
     <ClCompile Include="Canvas2D\src\Slider.cpp" />
     <ClCompile Include="Canvas2D\src\Graph.cpp" />

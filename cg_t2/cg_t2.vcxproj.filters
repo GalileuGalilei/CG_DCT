@@ -30,9 +30,6 @@
     <ClInclude Include="Canvas2D\include\ToolBar.h">
       <Filter>Arquivos de Cabeçalho</Filter>
     </ClInclude>
-    <ClInclude Include="Canvas2D\include\Tools.h">
-      <Filter>Arquivos de Cabeçalho</Filter>
-    </ClInclude>
     <ClInclude Include="Canvas2D\include\Vector2.h">
       <Filter>Arquivos de Cabeçalho</Filter>
     </ClInclude>
@@ -66,9 +63,6 @@
       <Filter>Arquivos de Origem</Filter>
     </ClCompile>
     <ClCompile Include="Canvas2D\src\ToolBar.cpp">
-      <Filter>Arquivos de Origem</Filter>
-    </ClCompile>
-    <ClCompile Include="Canvas2D\src\Tools.cpp">
       <Filter>Arquivos de Origem</Filter>
     </ClCompile>
     <ClCompile Include="Canvas2D\src\Sample.cpp">

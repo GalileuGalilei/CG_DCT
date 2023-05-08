@@ -10,10 +10,10 @@ private:
 	DCT() {};
 
 public:
-	static Sample* ApplyDCT(Sample* sample);
-	static Sample* ApplyIDCT(Sample* sample);
+	static void ApplyDCT(Sample* sample, Sample* dctSample);
+	static void ApplyIDCT(Sample* sample, Sample* idctSample);
 	static void BaseCossineFunction(Sample* baseCossineSample, int u);
-	static Sample* ApplyQuantization(Sample* sample, int quantization);
-	static Sample* ApplyDequantization(Sample* sample, int quantization);
-	static Sample* CalculateError(Sample* sample1, Sample* sample2);
+	static void ApplyQuantization(Sample* sample, Sample* quantizedSample, int quantization);
+	static void ApplyDequantization(Sample* sample, Sample* quantizedSample, int quantization);
+	static void CalculateError(Sample* sample1, Sample* sample2, Sample* errorSample);
 };
