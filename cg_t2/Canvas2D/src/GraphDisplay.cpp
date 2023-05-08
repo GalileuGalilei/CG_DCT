@@ -17,6 +17,14 @@ Graph* GraphDisplay::AddGraph(Sample* sample, const char* label)
     return graph;
 }
 
+Graph* GraphDisplay::AddGraph(Sample* sample, Vector2 range, const char* label)
+{
+	Graph* graph = new Graph(Vector2(0, 0), Vector2(0, 0), sample, range, label);
+	graphsVector.push_back(graph);
+	CalculateGraphs();
+	return graph;
+}
+
 void GraphDisplay::Clear()
 {
 	graphsVector.clear();

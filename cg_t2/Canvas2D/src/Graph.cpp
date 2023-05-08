@@ -11,6 +11,15 @@ Graph::Graph(Vector2 position, Vector2 size, Sample* sample, const char* label)
 	this->range = CalculateRange();
 }
 
+Graph::Graph(Vector2 position, Vector2 size, Sample* sample, Vector2 range, const char* label)
+{
+	this->position = position;
+	this->size = size;
+	this->sample = sample;
+	this->label = label;
+	this->range = range.y - range.x;
+}
+
 void Graph::Update()
 {
 	this->range = CalculateRange();

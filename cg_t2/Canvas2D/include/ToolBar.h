@@ -111,7 +111,8 @@ private:
 	{
 		AddButton([this]() 
 			{
-				originalSample->LoadSample(outFilename);
+				originalSample->LoadSample(inFilename);
+				CalculateSamples();
 			}, Colors::orange, "Load");
 
 		AddButton([this]() 
@@ -188,7 +189,7 @@ private:
 		graphDisplay->AddGraph(DCTSample, "DCT");
 		graphDisplay->AddGraph(quantizedSample, "Quantized DCT");
 		graphDisplay->AddGraph(IDCTSample, "IDCT (Reconstructed)");
-		graphDisplay->AddGraph(diffSample, "Difference (ERROR)");
+		graphDisplay->AddGraph(diffSample, Vector2(-128, 128), "Difference (ERROR)");
 		graphDisplay->AddGraph(baseCossineSample, "Base Cossine Function");
 	}
 };

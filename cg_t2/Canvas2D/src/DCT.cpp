@@ -38,6 +38,22 @@ float CalculateMax(Sample* sample)
 	return max;
 }
 
+float CalculateMin(Sample* sample)
+{
+	int sampleSize = sample->sample_vector.size();
+	float* sample_vector = sample_vector = sample->sample_vector.data();
+	float min = sample_vector[0];
+	for (int i = 0; i < sampleSize; i++)
+	{
+		float sampleValue = sample_vector[i];
+		if (sampleValue < min)
+		{
+			min = sampleValue;
+		}
+	}
+	return min;
+}
+
 void DCT::ApplyDCT(Sample* sample, Sample* dctSample)
 {
 	const float pi = 3.1415926;
@@ -80,6 +96,16 @@ void DCT::ApplyIDCT(Sample* sample, Sample* idctSample)
 		}
 
 		idctSample->sample_vector[i] = sum;
+	}
+
+	float min = CalculateMin(idctSample);
+	float range = CalculateRange(idctSample);
+
+	for (int i = 0; i < size; i++)
+	{
+		float value = idctSample->sample_vector[i];
+		float newValue = (value - min) / range - 0.5;
+		idctSample->sample_vector[i] = newValue * 127;
 	}
 }
 
@@ -133,12 +159,17 @@ void DCT::CalculateError(Sample* sample1, Sample* sample2, Sample* errorSample)
 	std::vector<float> sample2_vector = sample2->sample_vector;
 	float range1 = CalculateRange(sample1);
 	float range2 = CalculateRange(sample2);
+	float min1 = CalculateMin(sample1);
+	float min2 = CalculateMin(sample2);
 
 	int size = sample1_vector.size();
 	errorSample->sample_vector.resize(size);
 
+	float max = 0;
+
 	for (int i = 0; i < size; i++)
 	{
-		errorSample->sample_vector[i] = (((sample1_vector[i]) - (sample2_vector[i] / range2)*range1));
+		int value = (((sample1_vector[i] - min1) / range1) - ((sample2_vector[i] - min2) / range2))*512;
+		errorSample->sample_vector[i] = value;
 	}
 }

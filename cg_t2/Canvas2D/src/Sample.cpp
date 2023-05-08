@@ -78,6 +78,7 @@ void Sample::SaveSample(const char* filename)
 		return;
 	}
 	unsigned int size = sample_vector.size();
+	fwrite(&size, sizeof(unsigned int), 1, file);
 	for (float f : sample_vector)
 	{
 		char c = (char)f;
@@ -98,17 +99,19 @@ void Sample::LoadSample(const char* filename)
 	unsigned int size;
 	fread(&size, sizeof(unsigned int), 1, file);
 
-	if (CheckRange(size, 32, 512))
+	if (!CheckRange(size, 32, 512))
 	{
 		return;
 	}
 
+	sample_vector.clear();
 	sample_vector.resize(size);
-	while (!feof(file))
+
+	for (int i = 0; i < size; i++)
 	{
 		char c;
 		fread(&c, sizeof(char), 1, file);
-		sample_vector.push_back(c);
+		sample_vector[i] = c;
 	}
 
 	fclose(file);
