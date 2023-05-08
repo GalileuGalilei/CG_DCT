@@ -41,14 +41,14 @@ void mouse(int button, int state, int wheel, int direction, int x, int y)
 
 int main(void)
 {
-    int screenWidth = 800, screenHeight = 500;
+    int screenWidth = 920, screenHeight = 450;
     srand(time(NULL));
 
     EventManager::Instance()->AddListener<OnRenderEvent>(IRenderable::RenderAll);
     EventManager::Instance()->AddListener<OnClickEvent>(IClickable::ClickAll);
     EventManager::Instance()->AddListener<OnMouseOverEvent>(IClickable::MouseOverAll);
 
-    GraphDisplay* graphDisplay = new GraphDisplay(Vector2(100, 50), Vector2(screenWidth - 100, screenHeight - 100), 40);
+    GraphDisplay* graphDisplay = new GraphDisplay(Vector2(100, 50), Vector2(screenWidth - 100, screenHeight - 100), 30);
     ToolBar toolBar(graphDisplay, Vector2(0, 0), Vector2(100, screenHeight), 10);
 
     CV::init(&screenWidth, &screenHeight, "Canvas 2D");

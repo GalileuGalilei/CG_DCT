@@ -14,7 +14,7 @@ class GraphDisplay
 
 public:
 	GraphDisplay(Vector2 position, Vector2 size, int padding);
-	void AddGraph(Sample* sample, const char* label);
+	Graph* AddGraph(Sample* sample, const char* label);
 	void Clear();
 	void CalculateGraphs();
 };

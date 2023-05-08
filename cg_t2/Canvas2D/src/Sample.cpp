@@ -2,7 +2,7 @@
 
 Sample::Sample()
 {
-
+	sample_vector = std::vector<float>();
 }
 
 bool CheckRange(int value, int min, int max)

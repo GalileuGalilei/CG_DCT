@@ -51,6 +51,21 @@ Sample* DCT::ApplyIDCT(Sample* sample)
 	return idctSample;
 }
 
+void DCT::BaseCossineFunction(Sample* detination, int u)
+{
+	const float pi = 3.1415926;
+	const int resolution = 200;
+
+	detination->sample_vector.clear();
+	detination->sample_vector.resize(resolution);
+
+	for (int i = 0; i < resolution; i++)
+	{
+		float cossine = cos((pi * (2.f * i + 1) * u) / (2.f * resolution));
+		detination->sample_vector[i] = cossine;
+	}
+}
+
 Sample* DCT::ApplyQuantization(Sample* sample, int quantization)
 {
 	std::vector<float> sample_vector = sample->sample_vector;
@@ -59,7 +74,7 @@ Sample* DCT::ApplyQuantization(Sample* sample, int quantization)
 	quantizedSample->sample_vector.resize(size);
 	for (int i = 0; i < size; i++)
 	{
-		quantizedSample->sample_vector[i] = sample_vector[i] / quantization;
+		quantizedSample->sample_vector[i] = (int)(sample_vector[i] / quantization);
 	}
 	return quantizedSample;
 }

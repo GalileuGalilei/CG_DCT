@@ -3,35 +3,39 @@
 #include "GameEvents.h"
 #include <iostream>
 #include <string>
+#include <functional>
 
 /// <summary>
-/// Classe que desenha um slider na tela que pode ser ajustado com o mouse
+/// Classe que desenha um slider horizontal na tela que pode ser ajustado com o mouse
 /// </summary>
 class Slider : IClickable, IRenderable
 {
 private:
     float x, y, r;
     float width;
-    float height;
     float value;
     float maxValue;
     float minValue;
     bool isDragging;
     const char* label;
+    std::function<int(int)> OnChange;
+
+    const float thickness = 5;
 
 public:
-    Slider(float x, float y, float width, float minValue, float maxValue, const char* label)
+    Slider(std::function<int(int)> OnChange, Vector2 position, Vector2 size, Vector2 valueRange, const char* label)
     {
-        this->x = x;
-        this->y = y;
-        this->width = width;
-        this->value = minValue;
-        this->maxValue = maxValue;
-        this->minValue = minValue;
+        this->x = position.x;
+        this->y = position.y;
+        this->r = size.y / 4;
+        this->width = size.x;
+        this->minValue = valueRange.x;
+        this->maxValue = valueRange.y;
         this->label = label;
+        this->OnChange = OnChange;
+
+        this->value = minValue;
         this->isDragging = false;
-        this->r = 8;
-        height = 5;
     }
 
     float GetValue()
@@ -43,7 +47,7 @@ public:
     {
         CV::color(0.2, 0.2, 0.2);
         CV::text(x, y + 20, label);
-        CV::rectFill(x, y, x + width, y + height);
+        CV::rectFill(x, y, x + width, y + thickness);
 
         float normValue = (value - minValue) / maxValue;
         float cx = x + normValue * width;
@@ -52,7 +56,7 @@ public:
         CV::color(0,0,0);
         CV::text(cx + 2, y - 7, std::to_string((int)value).c_str());
         CV::color(0.8, 0.6, 0.2);
-        CV::circleFill(cx, y + height / 2, r, 12);
+        CV::circleFill(cx, y + thickness / 2, r, 12);
     }
 
     void OnClick(OnClickEvent* args) override
@@ -62,7 +66,7 @@ public:
         // Verifica se o botão do mouse foi pressionado
         if (args->button == 0 && args->state == 0)
         {
-            float dist = std::sqrt(std::pow(args->x - cx, 2) + std::pow(args->y - y - height / 2, 2));
+            float dist = std::sqrt(std::pow(args->x - cx, 2) + std::pow(args->y - y - thickness / 2, 2));
             if (dist <= r)
             {
                 isDragging = true;
@@ -87,8 +91,8 @@ public:
             value /= ratio;
             value = std::max(value, minValue);
             value = std::min(value, maxValue);
+            value = OnChange(value);
         }
-            printf("value: %f\n", value);
     }
 
     GameLayer GetLayer() override

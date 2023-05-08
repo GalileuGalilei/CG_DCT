@@ -12,6 +12,7 @@ private:
 public:
 	static Sample* ApplyDCT(Sample* sample);
 	static Sample* ApplyIDCT(Sample* sample);
+	static void BaseCossineFunction(Sample* baseCossineSample, int u);
 	static Sample* ApplyQuantization(Sample* sample, int quantization);
 	static Sample* ApplyDequantization(Sample* sample, int quantization);
 	static Sample* CalculateError(Sample* sample1, Sample* sample2);

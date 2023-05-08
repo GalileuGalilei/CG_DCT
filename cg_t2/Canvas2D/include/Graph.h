@@ -19,7 +19,7 @@ private:
 public:
 	Graph(Vector2 position, Vector2 size, Sample* sample, const char* label);
 	void OnRender(OnRenderEvent* args) override;
-
+	void Update();
 	friend class GraphDisplay;
 };
 

@@ -9,11 +9,12 @@ GraphDisplay::GraphDisplay(Vector2 position, Vector2 size, int padding)
 	this->padding = padding;
 }
 
-void GraphDisplay::AddGraph(Sample* sample, const char* label)
+Graph* GraphDisplay::AddGraph(Sample* sample, const char* label)
 {
     Graph* graph = new Graph(Vector2(0, 0), Vector2(0, 0), sample, label);
 	graphsVector.push_back(graph);
     CalculateGraphs();
+    return graph;
 }
 
 void GraphDisplay::Clear()

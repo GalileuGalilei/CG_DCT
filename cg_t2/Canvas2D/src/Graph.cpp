@@ -11,20 +11,26 @@ Graph::Graph(Vector2 position, Vector2 size, Sample* sample, const char* label)
 	this->range = CalculateRange();
 }
 
+void Graph::Update()
+{
+	this->range = CalculateRange();
+}
+
 float Graph::CalculateRange()
 {
 	int sampleSize = sample->sample_vector.size();
 	float* sample_vector = sample_vector = sample->sample_vector.data();
-	float max = 0;
-	float min = 0;
+	float max = sample_vector[0];
+	float min = sample_vector[0];
 	for (int i = 0; i < sampleSize; i++)
 	{
-		int sampleValue = sample_vector[i];
+		float sampleValue = sample_vector[i];
 		if (sampleValue > max)
 		{
 			max = sampleValue;
 		}
-		else if (sampleValue < min)
+
+		if (sampleValue < min)
 		{
 			min = sampleValue;
 		}
@@ -45,7 +51,7 @@ void Graph::OnRender(OnRenderEvent* args)
 	int h = size.y;
 
 	int sampleSize = sample->sample_vector.size();
-	float* sample_vector = sample_vector = sample->sample_vector.data();
+	float* sample_vector = sample->sample_vector.data();
 	CV::color(0, 0, 0);
 	CV::text(x, y + h + 20, label);
 	CV::rectFill(x, y - 5, w + x, h + y + 5);
@@ -56,12 +62,20 @@ void Graph::OnRender(OnRenderEvent* args)
 	}
 
 	float sampleOffset = (float)w / sampleSize;
-	Vector2 oldSamplePosition = Vector2(x,y);
+	Vector2 oldSamplePosition = Vector2(x, y + h / 2);
 
 	for (int i = 0; i < sampleSize; i++)
 	{
-		int sampleValue = sample_vector[i];
-		float normValue = (float)sampleValue / range + 0.5f;
+		float sampleValue = sample_vector[i];
+		float normValue;
+		if (range != 0.f)
+		{
+			normValue = (float)sampleValue / range + 0.5f;
+		}
+		else
+		{
+			normValue = 0.5f;
+		}
 		int sampleX = x + (i * sampleOffset) + sampleOffset;
 		int sampleY = y + (h * normValue);
 		

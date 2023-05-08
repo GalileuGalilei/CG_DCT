@@ -16,12 +16,17 @@ class ToolBar : IRenderable
 private :
 	std::list<Button*> buttonList;
 	std::list<Slider*> sliderList;
-	Slider* sampleSlider = NULL; //mudar depois??
+
+	int sampleSize = 32;
+	int quantization = 1;
+	int baseFunction = 0;
 
 	Sample* originalSample = nullptr;
 	Sample* DCTSample = nullptr;
 	Sample* IDCTSample = nullptr;
 	Sample* diffSample = nullptr;
+	Sample* quantizedSample = nullptr;
+	Sample* baseCossineSample = nullptr;
 
 	GraphDisplay* graphDisplay;
 
@@ -31,13 +36,16 @@ private :
 	Vector2 buttonSize;
 
 	const int offset;
-	const char* filename = "output.dct";
+	const char* outFilename = "output.dct";
+	const char* inFilename = "input.dct";
+	
+	Graph* baseCossineGraph;
 
 public :
 	ToolBar(GraphDisplay* graphDisplay, Vector2 position, Vector2 size, int buttonOffset) : offset(buttonOffset)
 	{
 		this->originalSample = new Sample();
-
+		this->baseCossineSample = new Sample();
 		this->position = position;
 		this->size = size;
 		this->graphDisplay = graphDisplay;
@@ -47,6 +55,9 @@ public :
 
 		EventManager::Instance()->AddListener<OnToolEvent>(ITool::OnTool);
 		SetColorDisplay();
+
+		originalSample->GenerateMultiSenoidalSampleVector(sampleSize);
+		CalculateSamples();
 	}
 
 	~ToolBar()
@@ -74,18 +85,12 @@ public :
 		buttonList.push_back(b);
 	}
 
-	Slider* AddSlider(const char label[], float width, float min, float max)
+	void AddSlider(std::function<int(int)> OnChange, Vector2 valueRange, const char label[])
 	{
-		int y = (buttonSize.y + offset) * buttonList.size() + offset * 2;
+		int y = (buttonSize.y + offset) * (buttonList.size() + sliderList.size()) + offset * 2;
 		int x = position.x + offset;
-		Slider* s = new Slider(x, y, width, min, max, label);
-
-		if (sampleSlider == NULL)
-		{
-			sampleSlider = s;
-		}
-
-		return s;
+		Slider* s = new Slider(OnChange, Vector2(x,y), buttonSize, valueRange, label);
+		sliderList.push_back(s);
 	}
 
 private:
@@ -113,33 +118,67 @@ private:
 	{
 		AddButton([this]() 
 			{
-				originalSample->LoadSample(filename);
+				originalSample->LoadSample(outFilename);
 			}, Colors::orange, "Load");
 
 		AddButton([this]() 
 			{
-				originalSample->SaveSample(filename);
+				originalSample->SaveSample(outFilename);
 			}, Colors::orange, "Save");
 
 		AddButton([this]()
 			{
-				originalSample->GenerateMultiSenoidalSampleVector(sampleSlider->GetValue());
+				originalSample->GenerateMultiSenoidalSampleVector(sampleSize);
 				CalculateSamples();
 			}, Colors::orange, "R.Senoid");
 
 		AddButton([this]()
 			{
-				originalSample->GenerateSenoidalSampleVector(sampleSlider->GetValue());
+				originalSample->GenerateSenoidalSampleVector(sampleSize);
 				CalculateSamples();
 			}, Colors::orange, "Senoid");
 
 		AddButton([this]()
 			{
-				originalSample->GenerateSampleVector(sampleSlider->GetValue());
+				originalSample->GenerateSampleVector(sampleSize);
 				CalculateSamples();
 			}, Colors::orange, "Random");
 
-		AddSlider("Tamanho", buttonSize.x, 32, 512);
+		AddSlider([this](int value)
+			{
+				sampleSize = value;
+				baseFunction = 0;
+				return value;
+			}, Vector2(32, 512), "Sample Size");
+
+		AddSlider([this](int value)
+			{
+				quantization = value;
+				return value;
+			}, Vector2(1, 32), "Quantization");
+
+		AddSlider([this](int value)
+			{
+				if (originalSample == nullptr)
+				{
+					return sampleSize;
+				}
+
+				if (value < sampleSize)
+				{
+					baseFunction = value;
+				//	char strValue[5];
+				//	snprintf(strValue, 5, "%i", value);
+				//	char aux[32];
+				//	std::strcpy(aux, baseFunctionPreLabel);
+				////std::strcpy(baseFunctionLabel, strcat(aux, strValue));
+					DCT::BaseCossineFunction(baseCossineSample, baseFunction);
+					baseCossineGraph->Update();
+					return value;
+				}
+				
+				return sampleSize;
+			}, Vector2(0, 512), "Base Function");
 	}
 
 	void CalculateSamples()
@@ -149,13 +188,26 @@ private:
 			return;
 		}
 
-		free(DCTSample);
+		if (originalSample->sample_vector.size() > 512)
+		{
+			int a = 2;
+		}
+
+		DCT::BaseCossineFunction(baseCossineSample, baseFunction);
+		delete(DCTSample);
 		DCTSample = DCT::ApplyDCT(originalSample);
-		free(IDCTSample);
-		IDCTSample = DCT::ApplyIDCT(DCTSample);
-		free(diffSample);
+		delete(quantizedSample);
+		quantizedSample = DCT::ApplyQuantization(DCTSample, quantization);
+
+		delete(IDCTSample);
+		Sample* desquantized = DCT::ApplyDequantization(quantizedSample, quantization);
+		IDCTSample = DCT::ApplyIDCT(desquantized);
+
+		delete(diffSample);
 		diffSample = DCT::CalculateError(originalSample, IDCTSample);
 		AddGraphs();
+
+		delete(desquantized);
 	}
 
 	void AddGraphs()
@@ -163,7 +215,9 @@ private:
 		graphDisplay->Clear();
 		graphDisplay->AddGraph(originalSample, "Original");
 		graphDisplay->AddGraph(DCTSample, "DCT");
+		graphDisplay->AddGraph(quantizedSample, "Quantized DCT");
 		graphDisplay->AddGraph(IDCTSample, "IDCT");
 		graphDisplay->AddGraph(diffSample, "Diff");
+		baseCossineGraph = graphDisplay->AddGraph(baseCossineSample, "Base Cossine Function");
 	}
 };
